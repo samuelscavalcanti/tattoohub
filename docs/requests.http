@@ -1,0 +1,164 @@
+@api = http://localhost:3000/api
+
+### Cadastro (cria estúdio + dono e loga)
+POST {{api}}/auth/register
+Content-Type: application/json
+
+{ "nome": "Alan", "email": "alan@teste.com", "senha": "12345678", "nomeEstudio": "Ink & Art" }
+
+### Login
+# @name login
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "email": "alan@teste.com", "senha": "12345678" }
+
+### Quem sou eu
+GET {{api}}/auth/me
+
+### Criar cliente
+POST {{api}}/clientes
+Content-Type: application/json
+
+{ "nome": "Mariana Costa", "telefone": "(11) 98765-4321", "estilo": "Realismo" }
+
+### Listar / buscar clientes
+GET {{api}}/clientes?busca=mari
+
+### Criar agendamento (cria o cliente se o nome não existir)
+POST {{api}}/agendamentos
+Content-Type: application/json
+
+{ "clienteNome": "Lucas Almeida", "data": "2030-01-10", "hora": "15:00", "servico": "Fineline", "profissionalNome": "Alan" }
+
+### Repetir a request acima -> deve dar 409 (conflito)
+
+### Agenda da semana
+GET {{api}}/agendamentos?de=2030-01-08&ate=2030-01-14
+
+### Alterar status (troque o ID)
+PATCH {{api}}/agendamentos/COLE_O_ID/status
+Content-Type: application/json
+
+{ "status": "concluido" }
+
+### Perguntas da anamnese
+GET {{api}}/anamnese/perguntas
+
+### Formulário público (use o slug retornado em /auth/me -> estudio.slug)
+GET {{api}}/public/anamnese/COLE_O_SLUG
+
+### Enviar ficha pública
+POST {{api}}/public/anamnese/COLE_O_SLUG/fichas
+Content-Type: application/json
+
+{ "clienteNome": "Pedro", "clienteTelefone": "(11) 90000-0000", "termoAceito": true,
+  "respostas": [ { "perguntaId": "COLE_ID_PERGUNTA", "resposta": true } ] }
+
+### Fichas
+GET {{api}}/anamnese/fichas
+
+### Dashboard
+GET {{api}}/dashboard
+
+### Criar lead de CRM
+POST {{api}}/leads
+Content-Type: application/json
+
+{ "cliente": "Mariana Costa", "descricao": "Leão no antebraço", "estilo": "Realismo", "preco": 1200 }
+
+### Leads do estúdio
+GET {{api}}/leads
+
+### Mover lead para fechado (status 2)
+PATCH {{api}}/leads/COLE_O_ID/status
+Content-Type: application/json
+
+{ "status": 2 }
+
+### Config
+GET {{api}}/config
+
+### Logout
+POST {{api}}/auth/logout
+
+# ═════════════ Pessoa 2: Estoque · Despesas · Equipe · Financeiro ═════════════
+# (faça login como DONO antes; despesas, equipe e financeiro são só do dono)
+
+### Estoque – criar
+POST {{api}}/estoque
+Content-Type: application/json
+
+{ "item": "Tinta preta 30ml", "categoria": "Tintas", "quantidade": 3 }
+
+### Estoque – listar (?baixo=true mostra só os com estoque baixo)
+GET {{api}}/estoque
+
+### Estoque – movimentar (troque o ID)  tipo: entrada | saida
+PATCH {{api}}/estoque/COLE_O_ID/movimentar
+Content-Type: application/json
+
+{ "tipo": "saida", "quantidade": 1 }
+
+### Estoque – saída maior que o saldo -> 400
+PATCH {{api}}/estoque/COLE_O_ID/movimentar
+Content-Type: application/json
+
+{ "tipo": "saida", "quantidade": 999 }
+
+### Estoque – editar / excluir (troque o ID)
+PUT {{api}}/estoque/COLE_O_ID
+Content-Type: application/json
+
+{ "quantidade": 20 }
+
+###
+DELETE {{api}}/estoque/COLE_O_ID
+
+### Despesa – criar
+POST {{api}}/despesas
+Content-Type: application/json
+
+{ "descricao": "Aluguel do estúdio", "valor": 1500, "categoria": "Aluguel", "data": "2030-01-05" }
+
+### Despesa – valor inválido -> 400
+POST {{api}}/despesas
+Content-Type: application/json
+
+{ "descricao": "Teste", "valor": 0 }
+
+### Despesas – listar por mês
+GET {{api}}/despesas?mes=2030-01
+
+### Equipe – listar (mostra limite do plano)
+GET {{api}}/equipe
+
+### Equipe – criar artista (cria login + perfil; no plano starter dá 403)
+POST {{api}}/equipe
+Content-Type: application/json
+
+{ "nome": "Bia Tattoo", "funcao": "Tatuadora", "split": 40, "email": "bia@teste.com", "senha": "12345678" }
+
+### Equipe – editar split (troque o ID)
+PUT {{api}}/equipe/COLE_O_ID
+Content-Type: application/json
+
+{ "split": 50 }
+
+### Equipe – remover (desativa o login; troque o ID)
+DELETE {{api}}/equipe/COLE_O_ID
+
+### Financeiro – resumo (entradas = leads fechados; saídas = despesas)
+GET {{api}}/financeiro/resumo?mes=2030-01
+
+### Financeiro – transações
+GET {{api}}/financeiro/transacoes?mes=2030-01
+
+### Financeiro – exportar extrato (CSV)
+GET {{api}}/financeiro/extrato.csv?mes=2030-01
+
+### Financeiro – repasses por artista (devido / pago / pendente)
+GET {{api}}/financeiro/repasses
+
+### Financeiro – pagar repasse (troque o artistaId; gera despesa "Repasse")
+POST {{api}}/financeiro/repasses/COLE_O_ID_DO_ARTISTA/pagar

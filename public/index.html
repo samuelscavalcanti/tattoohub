@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TattooHub - Gestão Profissional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body class="unauthenticated">
+<div id="loading-screen">
+    <div class="loader-logo">TATTOO<span>HUB</span></div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+    <div class="loader-text">Carregando sistema...</div>
+</div>
+
+<!-- ─── LOGIN SCREEN ─── -->
+<div id="sys-login">
+    <div class="sys-login-card">
+        <div class="sys-login-logo">TATTOO<span>HUB</span></div>
+        <div class="sys-login-sub">// Sistema de Gestão //</div>
+        <hr class="sys-login-divider">
+        <div class="sys-login-field">
+            <label for="sl-email">E-mail ou usuário</label>
+            <input type="email" id="sl-email" placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="sys-login-field">
+            <label for="sl-pass">Senha</label>
+            <input type="password" id="sl-pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="sys-login-btn" id="login-submit">ACESSAR O SISTEMA →</button>
+        <div class="sys-login-err" id="sl-err">⚠️ E-mail ou senha incorretos.</div>
+        <p class="sys-login-footer">TattooHub &copy; 2026 &mdash; Acesso restrito a assinantes.</p>
+    </div>
+</div>
+
+<!-- Dashboard -->
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="ri-drop-fill"></i> TattooHub
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-group-title">Geral</div>
+            <a class="nav-item active" data-target="dashboard">
+                <i class="ri-dashboard-line"></i> Dashboard
+            </a>
+            
+            <div class="nav-group-title">Gestão de Clientes</div>
+            <a class="nav-item" data-target="crm">
+                <i class="ri-pie-chart-line"></i> CRM (Funil)
+            </a>
+            <a class="nav-item" data-target="clients">
+                <i class="ri-team-line"></i> Carteira de Clientes
+            </a>
+            
+            <div class="nav-group-title">Operacional</div>
+            <a class="nav-item" data-target="agenda">
+                <i class="ri-calendar-line"></i> Agenda
+            </a>
+            <a class="nav-item" data-target="anamnese">
+                <i class="ri-heart-pulse-line"></i> Anamnese
+            </a>
+            <a class="nav-item" data-target="estoque">
+                <i class="ri-box-3-line"></i> Estoque
+            </a>
+            
+            <div class="nav-group-title">Administrativo</div>
+            <a class="nav-item" data-target="financeiro">
+                <i class="ri-wallet-3-line"></i> Financeiro
+            </a>
+            <a class="nav-item" data-target="config">
+                <i class="ri-settings-3-line"></i> Configurações
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="search-bar">
+                <i class="ri-search-line"></i>
+                <input type="text" placeholder="Buscar clientes, agendamentos...">
+            </div>
+            <div class="user-actions">
+                <button class="icon-btn" id="headerThemeToggle" title="Alternar Modo Escuro/Claro">
+                    <i class="ri-moon-line"></i>
+                </button>
+                <button class="icon-btn"><i class="ri-notification-3-line"></i><span class="badge">3</span></button>
+                <div style="position:relative;">
+                    <div id="header-avatar-btn" style="width: 32px; height: 32px; background: var(--bg-surface-hover); border-radius: 50%; overflow: hidden; margin-left: 10px; cursor:pointer; border:1px solid var(--border-color);">
+                        <img class="header-avatar-img" src="https://ui-avatars.com/api/?name=User" alt="User" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div id="header-dropdown" style="display:none; position:absolute; top:44px; right:0; background:var(--bg-surface); border:2px solid var(--border-color); border-radius:6px; overflow:hidden; width:200px; box-shadow:4px 4px 0 var(--border-color); z-index:9999;">
+                        <div id="header-dropdown-user" style="padding:0.8rem 1rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;"></div>
+                        <button id="logout-btn" style="width:100%; text-align:left; padding:0.7rem 1rem; background:transparent; border:none; color:var(--danger); cursor:pointer; font-weight:bold; font-size:0.85rem; display:flex; align-items:center; gap:6px;"><i class="ri-logout-box-r-line"></i> Sair da Conta</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view-section active">
+                <div class="section-header">
+                    <h1 class="section-title">Visão Geral</h1>
+                    <button class="btn" id="export-report-btn"><i class="ri-download-line"></i> Exportar Relatório</button>
+                </div>
+
+                <!-- KPIs -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span>Faturamento Mês</span> <i class="ri-money-dollar-circle-line"></i></div>
+                        <div class="kpi-value" id="kpi-revenue">R$ 0,00</div>
+                        <div class="kpi-trend" style="color: var(--success);"><i class="ri-arrow-up-line"></i> +14.2% vs. mês anterior</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span>Faturamento Anual</span> <i class="ri-wallet-3-line"></i></div>
+                        <div class="kpi-value" id="kpi-revenue-annual">R$ 305.150,00</div>
+                        <div class="kpi-trend" style="color: var(--success);"><i class="ri-arrow-up-line"></i> +28.5% meta anual</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span>Sessões Agendadas</span> <i class="ri-calendar-check-line"></i></div>
+                        <div class="kpi-value" id="kpi-sessions">0</div>
+                        <div class="kpi-trend" style="color: var(--success);"><i class="ri-arrow-up-line"></i> +8 nesta semana</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-header"><span>Taxa de Conversão</span> <i class="ri-percent-line"></i></div>
+                        <div class="kpi-value" id="kpi-conversion">0%</div>
+                        <div class="kpi-trend" style="color: var(--success);"><i class="ri-arrow-up-line"></i> +3.2% vs. canal médio</div>
+                    </div>
+                </div>
+
+                <!-- Charts Area -->
+                <div class="dashboard-panels">
+                    <div class="panel">
+                        <h2 class="panel-title">Receita Anual</h2>
+                        <div style="position: relative; height: 250px; width: 100%;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-title">Distribuição de Estilos (Pizza)</h2>
+                        <div style="position: relative; height: 250px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="stylesPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-title">Próximos Agendamentos</h2>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Horário</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-agenda-list">
+                                <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum agendamento futuro.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CRM View -->
+            <section id="crm" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Pipeline de Vendas (CRM)</h1>
+                    <button class="btn" id="add-lead-btn"><i class="ri-add-line"></i> Novo Lead</button>
+                </div>
+                
+                <div class="kanban-board">
+                    <!-- Column 1 -->
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            Contato Inicial <span class="badge" id="badge-col-1" style="position: static; font-size: 0.8rem; background: var(--bg-surface-hover); color: var(--text-main);">0</span>
+                        </div>
+                        <div class="kanban-cards" id="kanban-col-1">
+                            <!-- Cards go here via JS -->
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            Aguardando Sinal <span class="badge" id="badge-col-2" style="position: static; font-size: 0.8rem; background: var(--warning); color: #000;">0</span>
+                        </div>
+                        <div class="kanban-cards" id="kanban-col-2">
+                             <!-- Cards go here via JS -->
+                        </div>
+                    </div>
+                    <!-- Column 3 -->
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            Agendado <span class="badge" id="badge-col-3" style="position: static; font-size: 0.8rem; background: var(--success); color: #fff;">0</span>
+                        </div>
+                        <div class="kanban-cards" id="kanban-col-3">
+                             <!-- Cards go here via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clientes View -->
+            <section id="clients" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Carteira de Clientes</h1>
+                    <button class="btn" id="add-client-btn"><i class="ri-user-add-line"></i> Novo Cliente</button>
+                </div>
+                <div class="panel">
+                    <div style="display: flex; gap: 15px; margin-bottom: 1.5rem;">
+                        <input id="client-search" type="text" placeholder="Buscar por nome ou email..." style="padding: 0.5rem; background: var(--bg-base); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; width: 300px; outline: none;">
+                        <button class="btn" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main);"><i class="ri-filter-line"></i> Filtros</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome do Cliente</th>
+                                <th>Última Sessão</th>
+                                <th>Total Gasto</th>
+                                <th>Status Anamnese</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clients-list">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum cliente cadastrado.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Agenda View -->
+            <section id="agenda" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Agenda da Semana</h1>
+                    <button class="btn" id="add-agenda-btn"><i class="ri-calendar-event-line"></i> Novo Agendamento</button>
+                </div>
+                
+                <div class="panel" style="margin-bottom: 1.5rem;">
+                    <h2 class="panel-title">Calendário</h2>
+                    <!-- Weekly Grid -->
+                    <div id="agenda-calendar-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                        <!-- JavaScript will populate days here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Anamnese View -->
+            <section id="anamnese" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Anamnese Digital</h1>
+                </div>
+
+                <div class="dashboard-panels" style="grid-template-columns: 1fr;">
+
+                    <!-- QR Code Panel -->
+                    <div class="panel" style="border: 1px solid var(--primary); background: rgba(229, 57, 53, 0.02);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 1rem; flex-wrap:wrap;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="ri-qr-code-line" style="font-size: 1.5rem; color: var(--primary);"></i>
+                                <h2 class="panel-title" style="margin: 0;">Recepção Expressa (Anamnese)</h2>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn" id="copy-link-btn" style="background:transparent; border:1px solid var(--border-color); color:var(--text-main); font-size:0.8rem;"><i class="ri-link"></i> Copiar Link</button>
+                                <button class="btn" id="print-qr-btn" style="font-size:0.8rem;"><i class="ri-printer-line"></i> Imprimir Placa</button>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size:0.85rem;">O cliente escaneia o QR Code na recepção e assina a ficha de saúde no próprio celular. As respostas ficam salvas aqui no painel.</p>
+
+                        <div style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; background: var(--bg-base); border-radius: 8px; border: 1px solid var(--border-color); flex-wrap:wrap;">
+                            <div style="width: 150px; height: 150px; background: white; padding: 10px; border-radius: 10px; flex-shrink: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                                <img id="qr-img" src="" alt="QR Code" style="width: 100%; border-radius:4px;">
+                            </div>
+                            <div style="flex-grow: 1; min-width:200px;">
+                                <h3 style="color:var(--text-main); margin-bottom:0.5rem; font-family:'Oswald', sans-serif; font-size:1rem;">Link Exclusivo do Seu Estúdio</h3>
+                                <p id="qr-url-display" style="color:var(--primary); font-size:0.75rem; word-break:break-all; margin-bottom:1rem; line-height:1.5; font-family:'Roboto Mono',monospace;"></p>
+                                <p style="color:var(--text-muted); font-size:0.8rem; line-height:1.5;">QR Code único — as perguntas que aparecem para o cliente são as que você configurar abaixo.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor de Perguntas -->
+                    <div class="panel" style="margin-top:1.5rem;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:1rem; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="ri-list-check-3" style="font-size:1.5rem; color:var(--primary);"></i>
+                                <h2 class="panel-title" style="margin:0;">Perguntas da Anamnese</h2>
+                            </div>
+                            <button class="btn" id="add-pergunta-btn" style="font-size:0.8rem;"><i class="ri-add-line"></i> Nova Pergunta</button>
+                        </div>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Personalize as perguntas que aparecem para o seu cliente ao preencher a ficha. Disponível para todos os planos.</p>
+
+                        <div id="perguntas-list" style="display:flex; flex-direction:column; gap:0.6rem;">
+                            <div style="text-align:center; color:var(--text-muted); padding:1.5rem; font-size:0.85rem;">
+                                <i class="ri-loader-4-line"></i> Carregando perguntas...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fichas Preenchidas -->
+                    <div class="panel" style="margin-top:1.5rem;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:1rem; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="ri-file-user-line" style="font-size:1.5rem; color:var(--primary);"></i>
+                                <h2 class="panel-title" style="margin:0;">Fichas Preenchidas</h2>
+                            </div>
+                            <button class="btn" id="refresh-fichas-btn" style="background:transparent; border:1px solid var(--border-color); color:var(--text-main); font-size:0.8rem;"><i class="ri-refresh-line"></i> Atualizar</button>
+                        </div>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Clientes que assinaram a ficha de anamnese via QR Code.</p>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Telefone</th>
+                                        <th>Artista</th>
+                                        <th>Alertas</th>
+                                        <th>Data</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fichas-list">
+                                    <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Carregando fichas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Modal: Detalhes da Ficha -->
+            <div id="ficha-detail-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1.5rem; overflow-y:auto;">
+                <div style="background:var(--bg-surface); border:2px solid var(--border-color); padding:2rem; width:100%; max-width:560px; border-radius:8px; position:relative; max-height:85vh; overflow-y:auto; margin:auto;">
+                    <button id="close-ficha-modal" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;"><i class="ri-close-line"></i></button>
+                    <h2 style="font-family:'Oswald',sans-serif; color:var(--primary); font-size:1.4rem; margin-bottom:1.5rem; text-transform:uppercase;">Ficha Completa</h2>
+                    <div id="ficha-detail-content"></div>
+                </div>
+            </div>
+
+            <!-- Modal: Adicionar/Editar Pergunta -->
+            <div id="pergunta-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1.5rem;">
+                <div style="background:var(--bg-surface); border:2px solid var(--border-color); padding:2rem; width:100%; max-width:480px; border-radius:8px; position:relative;">
+                    <button id="close-pergunta-modal" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;"><i class="ri-close-line"></i></button>
+                    <h2 style="font-family:'Oswald',sans-serif; color:var(--primary); font-size:1.4rem; margin-bottom:1.5rem; text-transform:uppercase;" id="perg-modal-title">Nova Pergunta</h2>
+                    <input type="hidden" id="perg-edit-id">
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--text-muted);">Texto da Pergunta *</label>
+                        <input type="text" id="perg-texto" placeholder="Ex: Você fez alguma tatuagem recentemente?" style="width:100%; padding:0.8rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main); border-radius:6px; font-family:inherit; outline:none;">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+                        <div>
+                            <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--text-muted);">Tipo</label>
+                            <select id="perg-tipo" style="width:100%; padding:0.8rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main); border-radius:6px; font-family:inherit; outline:none;">
+                                <option value="checkbox">Sim/Não (Checkbox)</option>
+                                <option value="texto">Resposta Livre (Texto)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--text-muted);">Obrigatória?</label>
+                            <select id="perg-obrig" style="width:100%; padding:0.8rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main); border-radius:6px; font-family:inherit; outline:none;">
+                                <option value="false">Não</option>
+                                <option value="true">Sim</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn" id="save-pergunta-btn" style="width:100%;"><i class="ri-save-line"></i> Salvar Pergunta</button>
+                </div>
+            </div>
+
+            <!-- Estoque View -->
+            <section id="estoque" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Controle de Estoque</h1>
+                    <button class="btn" id="add-estoque-btn"><i class="ri-add-line"></i> Nova Entrada</button>
+                </div>
+                <div class="panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Categoria</th>
+                                <th>Quantidade Atual</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="estoque-list">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Estoque vazio. Adicione uma nova entrada.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Financeiro View -->
+            <section id="financeiro" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Gestão Financeira</h1>
+                    <div style="display: flex; gap: 10px;">
+                        <input id="finance-month" type="month" aria-label="Mês do financeiro">
+                        <button class="btn" id="export-statement-btn" style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-main);"><i class="ri-file-download-line"></i> Exportar Extrato</button>
+                        <button class="btn" id="add-despesa-btn"><i class="ri-add-line"></i> Nova Despesa</button>
+                    </div>
+                </div>
+                
+                <!-- Financial Cards -->
+                <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="kpi-card" style="border-top: 3px solid var(--success);">
+                        <div class="kpi-header"><span>Entradas (Mês)</span> <i class="ri-arrow-up-circle-line" style="color: var(--success);"></i></div>
+                        <div class="kpi-value" id="kpi-entrada" style="color: var(--success);">R$ 0,00</div>
+                    </div>
+                    <div class="kpi-card" style="border-top: 3px solid var(--danger);">
+                        <div class="kpi-header"><span>Saídas (Despesas)</span> <i class="ri-arrow-down-circle-line" style="color: var(--danger);"></i></div>
+                        <div class="kpi-value" id="kpi-saida">R$ 0,00</div>
+                    </div>
+                    <div class="kpi-card" style="border-top: 3px solid var(--primary);">
+                        <div class="kpi-header"><span>Lucro Líquido</span> <i class="ri-wallet-3-line" style="color: var(--primary);"></i></div>
+                        <div class="kpi-value" id="kpi-lucro">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-panels">
+                    <!-- Fluxo de Caixa -->
+                    <div class="panel">
+                        <h2 class="panel-title">Últimas Transações</h2>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-list">
+                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhuma transação registrada.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Divisão de Artistas (Pain Point) -->
+                    <div class="panel" style="background: rgba(229, 57, 53, 0.02); border: 1px solid rgba(229, 57, 53, 0.2);">
+                        <h2 class="panel-title">Comissionamento (Split)</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.85rem;">Repasses pendentes para artistas convidados no seu estúdio.</p>
+                        
+                        <div id="split-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum repasse pendente.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configurações View -->
+            <section id="config" class="view-section">
+                <div class="section-header">
+                    <h1 class="section-title">Configurações</h1>
+                </div>
+                
+                <div class="dashboard-panels" style="grid-template-columns: 1fr;">
+                    <div class="panel" style="max-width: 800px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; border-bottom: 2px dashed var(--border-color); padding-bottom: 1rem;">
+                            <i class="ri-palette-line" style="font-size: 1.5rem; color: var(--primary);"></i>
+                            <h2 class="panel-title" style="margin: 0; font-size: 1.2rem;">Personalização do Sistema</h2>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--primary);">
+                                    <img id="settings-avatar-preview" src="https://ui-avatars.com/api/?name=TH&background=random" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">Foto de Perfil do Estúdio</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted);">Altere a imagem que aparece no menu lateral. (Máx 2MB)</div>
+                                </div>
+                            </div>
+                            <div>
+                                <input type="file" id="avatar-upload" accept="image/*" style="display:none;">
+                                <button class="btn" id="choose-avatar-btn" style="background:transparent; border:1px solid var(--primary); color:var(--text-main);">Escolher Foto</button>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px;">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--bg-surface-hover); display: flex; align-items: center; justify-content: center; color: var(--text-main); font-size: 1.2rem;">
+                                    <i class="ri-moon-clear-line"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">Tema Escuro</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted);">Habilitar interface noturna (Dark Mode).</div>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="theme-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Equipe & Perfis Panel (Plano PRO) -->
+                    <div class="panel" style="max-width: 800px; margin-top: 1.5rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px dashed var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="ri-team-line" style="font-size: 1.5rem; color: var(--primary);"></i>
+                                <h2 class="panel-title" style="margin: 0; font-size: 1.2rem;">Equipe & Perfis (Até 5 Artistas)</h2>
+                            </div>
+                            <span id="team-plan-badge" style="font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: var(--bg-surface-hover); color: var(--text-main);">PRO DETECTED</span>
+                        </div>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem;">
+                            Cadastre os perfis dos artistas do estúdio para configurar comissionamento individual (Split) e gerenciar repasses de cada sessão.
+                        </p>
+                        
+                        <div id="team-list" style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem;">
+                            <!-- Members loaded dynamically via JS -->
+                        </div>
+                        
+                        <button class="btn" id="add-artist-btn" style="width: auto; font-size: 0.9rem; padding: 0.6rem 1.2rem; box-shadow: 4px 4px 0 var(--crimson);">
+                            <i class="ri-user-add-line"></i> ADICIONAR NOVO ARTISTA
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Extra settings for Light Theme density -->
+                <div class="dashboard-panels" style="grid-template-columns: 1fr 1fr; margin-top: 1.5rem;">
+                    <div class="panel">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; border-bottom: 2px dashed var(--border-color); padding-bottom: 1rem;">
+                            <i class="ri-store-2-line" style="font-size: 1.5rem; color: var(--primary);"></i>
+                            <h2 class="panel-title" style="margin: 0; font-size: 1.2rem;">Dados Básicos do Estúdio</h2>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">Nome do Estúdio</label>
+                            <input type="text" id="studio-name" style="width:100%; padding:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px;" placeholder="Ex: Ink & Art">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">Instagram Oficial (Opcional)</label>
+                            <input type="text" id="studio-instagram" style="width:100%; padding:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px;" placeholder="@seu.estudio">
+                        </div>
+                        <button class="btn" id="save-studio-btn" style="width:100%;">Salvar Dados</button>
+                    </div>
+
+                    <div class="panel">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; border-bottom: 2px dashed var(--border-color); padding-bottom: 1rem;">
+                            <i class="ri-whatsapp-line" style="font-size: 1.5rem; color: var(--primary);"></i>
+                            <h2 class="panel-title" style="margin: 0; font-size: 1.2rem;">Mensagens Automáticas (WhatsApp)</h2>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display:block; font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">Mensagem Padrão de Orçamento</label>
+                            <textarea id="studio-message" rows="4" style="width:100%; padding:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px; font-family:inherit;">Olá! Aqui é do estúdio [Nome]. Recebemos seu interesse em fazer uma tattoo. Para agilizarmos seu orçamento, por favor nos envie: referências, local do corpo e tamanho aproximado.</textarea>
+                            <p style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Você pode usar essas mensagens prontas para agilizar o contato com novos leads no CRM.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" style="max-width: 800px; margin-top: 1.5rem; border: 1px solid var(--danger); background: rgba(229,57,53,0.05);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                        <i class="ri-error-warning-line" style="font-size: 1.5rem; color: var(--danger);"></i>
+                        <h2 class="panel-title" style="margin: 0; font-size: 1.2rem; color: var(--danger);">Zona de Perigo</h2>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem;">
+                        A exclusão da conta é permanente. Isso apagará seu acesso, leads do CRM salvos na nuvem e todos os dados vinculados a este e-mail no banco de dados.
+                    </p>
+                    <button class="btn" id="delete-account-btn" style="background: transparent; border: 1px solid var(--danger); color: var(--danger);">Excluir Minha Conta</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- CRM Custom Modal -->
+    <div id="crm-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center; padding:1.5rem; font-family:'Roboto Mono', monospace;">
+        <div style="background:var(--bg-surface); border:4px solid var(--border-color); padding:2rem; width:100%; max-width:500px; box-shadow:8px 8px 0 var(--crimson); position:relative;">
+            <h2 style="font-family:'Oswald', sans-serif; text-transform:uppercase; font-size:1.5rem; color:var(--primary); margin-bottom:1.5rem; display:flex; align-items:center; gap:8px;">
+                <i class="ri-add-circle-line"></i> Novo Lead de Venda
+            </h2>
+            <div style="display:flex; flex-direction:column; gap:1.2rem; margin-bottom:1.5rem;">
+                <div>
+                    <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--border-color);">Nome do Cliente *</label>
+                    <input type="text" id="crm-in-name" placeholder="Ex: Carlos Silva" style="width:100%; padding:0.8rem; border:2px solid var(--border-color); background:var(--bg-base); color:var(--text-main); font-family:inherit; outline:none;">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--border-color);">Estilo da Tattoo</label>
+                        <input type="text" id="crm-in-tag" placeholder="Ex: Realismo" style="width:100%; padding:0.8rem; border:2px solid var(--border-color); background:var(--bg-base); color:var(--text-main); font-family:inherit; outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--border-color);">Preço Estimado</label>
+                        <input type="text" id="crm-in-price" placeholder="Ex: R$ 800" style="width:100%; padding:0.8rem; border:2px solid var(--border-color); background:var(--bg-base); color:var(--text-main); font-family:inherit; outline:none;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--border-color);">Descrição / Detalhes</label>
+                    <textarea id="crm-in-desc" placeholder="Detalhes da arte, tamanho, local do corpo..." style="width:100%; height:80px; padding:0.8rem; border:2px solid var(--border-color); background:var(--bg-base); color:var(--text-main); font-family:inherit; outline:none; resize:none;"></textarea>
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:0.4rem; text-transform:uppercase; color:var(--border-color);">Artista Responsável</label>
+                    <select id="crm-in-artist" style="width:100%; padding:0.8rem; border:2px solid var(--border-color); background:var(--bg-base); color:var(--text-main); font-family:inherit; outline:none; border-radius: 0;">
+                        <!-- Options filled via JS based on team -->
+                    </select>
+                </div>
+            </div>
+            <div id="crm-modal-err" style="color:var(--primary); font-size:0.8rem; margin-bottom:1rem; display:none; font-weight:bold;">⚠️ O nome do cliente é obrigatório.</div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn" id="cancel-crm-btn" style="background:transparent; border:2px solid var(--border-color); color:var(--text-main); box-shadow:none; padding:0.6rem 1.2rem; font-size:0.9rem; width:auto; margin-top:0;">Cancelar</button>
+                <button class="btn" id="save-crm-btn" style="padding:0.6rem 1.2rem; font-size:0.9rem; box-shadow:4px 4px 0 var(--crimson); width:auto; margin-top:0;">Salvar Lead</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="client-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center; padding:1.5rem;">
+        <div style="background:var(--bg-surface); padding:2rem; width:100%; max-width:420px; border:2px solid var(--border-color); border-radius:6px;">
+            <h3 id="c-modal-title" style="margin-bottom:1.2rem;">Novo Cliente</h3>
+            <input type="hidden" id="c-edit-id" value="">
+            <div style="display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.2rem;">
+                <input type="text" id="c-name" placeholder="Nome completo *" style="width:100%; padding:0.7rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px;">
+                <input type="tel" id="c-phone" placeholder="WhatsApp (Opcional)" style="width:100%; padding:0.7rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px;">
+                <input type="date" id="c-birth" style="width:100%; padding:0.7rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-muted); border-radius:4px;">
+                <input type="text" id="c-style" placeholder="Estilo favorito (Opcional)" style="width:100%; padding:0.7rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px;">
+                <div style="position:relative;">
+                    <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600;">R$</span>
+                    <input type="number" id="c-spent" placeholder="0,00" step="0.01" min="0" style="width:100%; padding:0.7rem 0.7rem 0.7rem 2.5rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); border-radius:4px;">
+                </div>
+            </div>
+            <div style="display:flex; gap:0.8rem;">
+                <button class="btn" id="save-client-btn" style="flex:1;">Salvar</button>
+                <button class="btn" id="cancel-client-btn" style="flex:1; background:transparent; border:1px solid var(--border-color); color:var(--text-main);">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="agenda-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center; padding:1.5rem;">
+        <div style="background:var(--bg-surface); padding:2rem; width:100%; max-width:440px; border:2px solid var(--border-color);">
+            <h3 style="font-family:'Oswald',sans-serif; margin-bottom:1.2rem;">Novo Agendamento</h3>
+            <input type="text" id="a-client" placeholder="Nome do Cliente" style="width:100%; padding:0.8rem; margin-bottom:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); font-family:inherit;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:0.8rem;">
+                <div><label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Data</label><input type="date" id="a-date" style="width:100%; padding:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); font-family:inherit;"></div>
+                <div><label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Horário</label><input type="time" id="a-time" style="width:100%; padding:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); font-family:inherit;"></div>
+            </div>
+            <input type="text" id="a-service" placeholder="Serviço (ex: Tattoo, Piercing...)" style="width:100%; padding:0.8rem; margin-bottom:0.8rem; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); font-family:inherit;">
+            <div style="display:flex; gap:0.8rem; margin-top:0.5rem;">
+                <button class="btn" id="save-agenda-btn" style="flex:1;">Agendar</button>
+                <button class="btn" id="cancel-agenda-btn" style="flex:1; background:transparent; border:1px solid var(--border-color); color:var(--text-main);">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="estoque-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center; padding:1.5rem;">
+        <div style="background:var(--bg-surface); padding:2rem; width:100%; max-width:400px; border:2px solid var(--border-color);">
+            <h3>Nova Entrada de Estoque</h3><br>
+            <input type="text" id="e-item" placeholder="Item (ex: Agulha)" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+            <input type="text" id="e-category" placeholder="Categoria (opcional)" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+            <input type="number" id="e-qtd" placeholder="Quantidade" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+            <button class="btn" id="save-stock-btn">Salvar</button>
+            <button class="btn" id="cancel-stock-btn" style="background:transparent; color:var(--text-main);">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="despesa-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center; padding:1.5rem;">
+        <div style="background:var(--bg-surface); padding:2rem; width:100%; max-width:400px; border:2px solid var(--border-color);">
+            <h3>Nova Despesa</h3><br>
+            <input type="text" id="d-desc" placeholder="Descrição (ex: Aluguel)" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+            <input type="number" id="d-valor" placeholder="Valor (R$)" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+            <select id="d-category" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+                <option value="Outros">Outros</option>
+                <option value="Aluguel">Aluguel</option>
+                <option value="Material">Material</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Equipe">Equipe</option>
+                <option value="Repasse">Repasse</option>
+            </select>
+            <input type="date" id="d-date" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+            <button class="btn" id="save-expense-btn">Salvar</button>
+            <button class="btn" id="cancel-expense-btn" style="background:transparent; color:var(--text-main);">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="artist-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center; padding:1.5rem;">
+        <div style="background:var(--bg-surface); padding:2rem; width:100%; max-width:400px; border:2px solid var(--border-color);">
+            <h3>Adicionar Artista (Sub-conta PRO)</h3><br>
+            <input type="hidden" id="artist-is-pro">
+            <input type="text" id="art-name" placeholder="Nome do Artista" style="width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main);">
+            <input type="text" id="art-role" placeholder="Função (ex: Tatuador)" style="width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main);">
+            <input type="number" id="art-split" placeholder="Split % (ex: 60)" style="width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main);">
+            <hr style="border-color:var(--border-color); margin: 1rem 0;">
+            <p style="font-size:0.8rem; color:var(--primary); margin-bottom:0.5rem;">Dados de Acesso (Login):</p>
+            <input type="email" id="art-email" placeholder="E-mail de acesso" style="width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main);">
+            <input type="password" id="art-pass" placeholder="Senha provisória" style="width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-main);">
+            
+            <button class="btn" id="save-artist-btn">Criar Conta & Adicionar</button>
+            <button class="btn" id="cancel-artist-btn" style="background:transparent; color:var(--text-main);">Cancelar</button>
+        </div>
+    </div>
+<script type="module" src="/js/main.js"></script>
+</body></html>
