@@ -17,11 +17,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
-        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
-        imgSrc: ["'self'", 'data:', 'https://ui-avatars.com', 'https://api.qrserver.com'],
-        connectSrc: ["'self'"],
+        'script-src': ["'self'", 'https://cdn.jsdelivr.net'],
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+        'font-src': ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net', 'data:'],
+        'img-src': ["'self'", 'data:', 'https://ui-avatars.com', 'https://api.qrserver.com'],
+        'connect-src': ["'self'"],
+        'upgrade-insecure-requests': isProd ? [] : null,
       },
     },
   })
