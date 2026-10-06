@@ -45,6 +45,12 @@ export async function login(email, senha) {
   showApplication();
   return session;
 }
+export async function register({ nome, nomeEstudio, email, senha }) {
+  const result = await post('/auth/register', { nome, nomeEstudio, email, senha });
+  session = result.usuario;
+  showApplication();
+  return session;
+}
 
 export async function logout() {
   await post('/auth/logout', {});
