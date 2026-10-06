@@ -469,6 +469,13 @@
             margin-top: 1rem; display: none;
             font-family: 'Roboto Mono', monospace;
         }
+        .sys-login-link {
+            display: block; width: 100%; margin-top: 1.2rem;
+            background: none; border: none; cursor: pointer;
+            color: #1A1A1A; text-decoration: underline;
+            font-family: 'Roboto Mono', monospace; font-size: 0.8rem;
+        }
+        .sys-login-link:hover { color: #DC143C; }
 
         .sys-login-footer {
             text-align: center; margin-top: 2rem;
