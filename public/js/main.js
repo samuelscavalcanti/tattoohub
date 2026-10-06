@@ -1,5 +1,5 @@
 import { ApiError } from './api.js';
-import { login, logout, restoreSession, session } from './auth.js';
+import { login, logout, register, restoreSession, session } from './auth.js';
 import { initAgenda, loadAgenda } from './modules/agenda.js';
 import { initAnamnese, loadAnamnese } from './modules/anamnese.js';
 import { initClients, loadClients } from './modules/clients.js';
@@ -62,7 +62,8 @@ function initializeModules() {
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   });
   $('#login-submit').addEventListener('click', submitLogin);
-  ['sl-email', 'sl-pass'].forEach((id) => {
+  $('#toggle-auth-mode').addEventListener('click', () => setAuthMode(!registerMode));
+  ['sl-nome', 'sl-estudio', 'sl-email', 'sl-pass'].forEach((id) => {
     $(`#${id}`).addEventListener('keydown', (event) => {
       if (event.key === 'Enter') submitLogin();
     });
@@ -87,14 +88,38 @@ function initializeModules() {
   });
 }
 
+let registerMode = false;
+
+function setAuthMode(ativo) {
+  registerMode = ativo;
+  $('#sl-register-fields').hidden = !ativo;
+  $('#login-submit').textContent = ativo ? 'CRIAR CONTA →' : 'ACESSAR O SISTEMA →';
+  $('#toggle-auth-mode').textContent = ativo ? 'Já tenho conta. Entrar' : 'Não tem conta? Cadastre-se';
+  $('#sl-pass').placeholder = ativo ? 'Mínimo de 8 caracteres' : '••••••••';
+  $('#sl-pass').autocomplete = ativo ? 'new-password' : 'current-password';
+  $('#sl-err').style.display = 'none';
+}
+
 async function submitLogin() {
   const button = $('#login-submit');
   const errorBox = $('#sl-err');
+  const label = registerMode ? 'CRIAR CONTA →' : 'ACESSAR O SISTEMA →';
   errorBox.style.display = 'none';
   button.disabled = true;
-  button.textContent = 'VERIFICANDO...';
+  button.textContent = registerMode ? 'CRIANDO CONTA...' : 'VERIFICANDO...';
   try {
-    await login($('#sl-email').value.trim(), $('#sl-pass').value);
+    const email = $('#sl-email').value.trim();
+    const senha = $('#sl-pass').value;
+    if (registerMode) {
+      await register({
+        nome: $('#sl-nome').value.trim(),
+        nomeEstudio: $('#sl-estudio').value.trim(),
+        email,
+        senha,
+      });
+    } else {
+      await login(email, senha);
+    }
     $('#sl-pass').value = '';
     await afterLogin();
   } catch (error) {
@@ -102,7 +127,7 @@ async function submitLogin() {
     errorBox.style.display = 'block';
   } finally {
     button.disabled = false;
-    button.textContent = 'ACESSAR O SISTEMA →';
+    button.textContent = label;
   }
 }
 
