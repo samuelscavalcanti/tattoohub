@@ -23,6 +23,16 @@
         <div class="sys-login-sub">// Sistema de Gestão //</div>
         <hr class="sys-login-divider">
         <div class="sys-login-field">
+        <div id="sl-register-fields" hidden>
+            <div class="sys-login-field">
+                <label for="sl-nome">Seu nome</label>
+                <input type="text" id="sl-nome" placeholder="Seu nome completo" autocomplete="name">
+            </div>
+            <div class="sys-login-field">
+                <label for="sl-estudio">Nome do estúdio</label>
+                <input type="text" id="sl-estudio" placeholder="Ex.: Ink &amp; Art Studio" autocomplete="organization">
+            </div>
+        </div>
             <label for="sl-email">E-mail ou usuário</label>
             <input type="email" id="sl-email" placeholder="seu@email.com" autocomplete="email">
         </div>
@@ -32,6 +42,7 @@
         </div>
         <button class="sys-login-btn" id="login-submit">ACESSAR O SISTEMA →</button>
         <div class="sys-login-err" id="sl-err">⚠️ E-mail ou senha incorretos.</div>
+        <button type="button" class="sys-login-link" id="toggle-auth-mode">Não tem conta? Cadastre-se</button>
         <p class="sys-login-footer">TattooHub &copy; 2026 &mdash; Acesso restrito a assinantes.</p>
     </div>
 </div>
