@@ -1,101 +1,139 @@
-# TattooHub Backend
-**Pessoa 1:** Auth + Clientes + Agenda + Anamnese + Config + Dashboard  
-**Pessoa 2:** Estoque + Financeiro/Despesas + Equipe
-Stack: Node.js · Express · MVC · Mongoose/MongoDB · sessão (express-session + connect-mongo)
+# TattooHub
 
-## Rodar
-```bash
-npm install
-npm run dev               # http://localhost:3000/ (front) e /api/health (API)
-```
-O `.env` local de desenvolvimento já está configurado para usar MongoDB em
-`mongodb://127.0.0.1:27017/tattoohub`. Instale e inicie o MongoDB Community Server local antes de
-rodar o servidor. O segredo configurado no `.env` é exclusivo para desenvolvimento local; troque-o
-por um valor aleatório antes de qualquer implantação.
+Sistema web para gestão de estúdios de tatuagem. Reúne clientes, agenda, fichas de anamnese, CRM de leads, estoque, equipe e financeiro em uma aplicação com API e interface servidas pelo mesmo servidor.
 
-No Windows PowerShell, na pasta do projeto:
+## Funcionalidades
+
+- Cadastro e autenticação de estúdios por sessão.
+- Dashboard, clientes e agenda de atendimentos.
+- Formulário público de anamnese e gerenciamento de fichas e perguntas.
+- CRM de leads.
+- Controle de estoque, despesas, equipe e repasses.
+- Resumo financeiro e exportação de extrato CSV.
+- Separação dos dados por estúdio e permissões para dono e artista.
+
+## Requisitos
+
+- Node.js 18 ou superior.
+- MongoDB em execução, localmente ou acessível por uma URI.
+- npm (incluído com o Node.js).
+
+## Configuração e inicialização
+
+No PowerShell, abra a pasta do projeto e execute:
+
 ```powershell
 npm install
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+```
+
+Abra o `.env` e confira as configurações antes de iniciar:
+
+| Variável | Finalidade |
+|---|---|
+| `PORT` | Porta HTTP do servidor (padrão: `3000`). |
+| `NODE_ENV` | Ambiente de execução; use `development` localmente e `production` na implantação. |
+| `MONGO_URI` | URI do MongoDB. Para uma instalação local, use `mongodb://127.0.0.1:27017/tattoohub`. |
+| `SESSION_SECRET` | Segredo longo e aleatório usado para assinar as sessões. Substitua o valor de exemplo antes de usar o sistema. |
+| `FRONT_ORIGIN` | Origens permitidas para um frontend hospedado em outro domínio; deixe vazio quando frontend e API forem servidos juntos. |
+| `COOKIE_SAMESITE` | Política do cookie de sessão; use `lax` no acesso local. `none` exige HTTPS. |
+| `TZ` | Fuso horário do servidor (padrão: `America/Sao_Paulo`). |
+
+Não compartilhe nem envie seu `.env` para o repositório. O `.env.example` contém somente valores de referência. Se usar MongoDB local, inicie o serviço do MongoDB antes do servidor.
+
+Inicie a aplicação:
+
+```powershell
 npm run dev
 ```
-Para validar que a API está respondendo, em outro terminal:
+
+O servidor inicia em `http://localhost:3000` e reinicia automaticamente quando os arquivos do backend mudam. Para iniciar sem o modo de desenvolvimento, use `npm start`.
+
+Verifique se a API está respondendo, em outro terminal:
+
 ```powershell
 Invoke-RestMethod http://localhost:3000/api/health
 ```
-O front integrado é servido pelo mesmo processo em `http://localhost:3000/`; não abra `index.html`
-diretamente nem precisa iniciar um servidor separado para o front.
-Teste as rotas com `docs/requests.http` (extensão REST Client do VS Code) ou Insomnia.
 
-## Estrutura (MVC)
+Uma resposta como `{ "ok": true }` indica que o servidor está ativo. A API só começa a aceitar conexões depois de conectar ao MongoDB.
+
+## Como acessar o sistema
+
+1. Com o servidor e o MongoDB em execução, abra `http://localhost:3000` no navegador.
+2. No primeiro acesso, crie o estúdio e o usuário dono pela rota pública `POST /api/auth/register`. A tela do sistema é de login; ela não possui formulário de cadastro.
+3. Faça login na interface usando o e-mail e a senha criados.
+
+Para criar o primeiro usuário pelo PowerShell, substitua os dados de exemplo e execute:
+
+```powershell
+$cadastro = @{
+  nome = "Seu nome"
+  email = "voce@exemplo.com"
+  senha = "substitua-por-uma-senha-segura"
+  nomeEstudio = "Nome do estudio"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Uri "http://localhost:3000/api/auth/register" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $cadastro
 ```
+
+A senha deve ter pelo menos 8 caracteres. A rota cria o estúdio, o usuário dono e as perguntas padrão da anamnese. Depois, volte à página `http://localhost:3000` e entre com as credenciais cadastradas. Se já existe um usuário, pule o cadastro e faça login diretamente.
+
+Para criar usuários artistas, entre como dono e use a área de equipe. A visibilidade de dashboard, configurações, equipe e financeiro depende do perfil. O plano `starter` permite um perfil; o plano `pro`, até cinco.
+
+### Anamnese pública
+
+O formulário público pode ser acessado em `http://localhost:3000/anamnese.html?acc=<slug-do-estudio>`. O `slug` está disponível nos dados do estúdio retornados por `GET /api/auth/me`. O formulário não exige login.
+
+## API
+
+As rotas da API usam o prefixo `/api`. O health check, o cadastro/login e as rotas de anamnese pública não exigem autenticação. As demais funcionalidades usam a sessão criada no login.
+
+| Área | Rotas principais |
+|---|---|
+| Saúde | `GET /health` |
+| Autenticação | `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` |
+| Clientes | `GET/POST /clientes`, `GET/PUT/DELETE /clientes/:id` |
+| Agenda | `GET/POST /agendamentos`, `GET/PUT/DELETE /agendamentos/:id`, `PATCH /agendamentos/:id/status` |
+| Anamnese | `/anamnese/perguntas`, `/anamnese/fichas` e respectivos detalhes; as alterações de perguntas são restritas ao dono |
+| Anamnese pública | `GET /public/anamnese/:slug`, `POST /public/anamnese/:slug/fichas` |
+| Configurações | `GET /config`, `PUT /config/estudio`, `PUT /config/perfil`, `PUT /config/senha`, `DELETE /config/conta` |
+| Dashboard | `GET /dashboard` (dono) |
+| CRM | `GET/POST /leads`, `PUT/DELETE /leads/:id`, `PATCH /leads/:id/status` |
+| Estoque | `GET/POST /estoque`, `PUT/DELETE /estoque/:id`, `PATCH /estoque/:id/movimentar` |
+| Despesas e equipe | `/despesas` e `/equipe` (restritas ao dono) |
+| Financeiro | `/financeiro/resumo`, `/financeiro/transacoes`, `/financeiro/extrato.csv`, `/financeiro/repasses` (dono) |
+
+Para exemplos de requisições, incluindo cadastro, login, agenda, anamnese e financeiro, consulte [`docs/requests.http`](docs/requests.http). O arquivo pode ser executado com a extensão REST Client do VS Code. Ao chamar endpoints protegidos pela extensão ou por outra ferramenta HTTP, mantenha o cookie de sessão retornado pelo login.
+
+## Estrutura do projeto
+
+```text
 src/
-  models/       Estudio, Usuario, Cliente, Agendamento, Pergunta, Ficha  |  Estoque, Despesa, Membro, Repasse, Lead*
-  controllers/  regras de cada módulo (recebem req, devolvem JSON)
-  routes/       URL -> controller (+ middlewares de auth/perfil)
-  services/     lógica reaproveitável (criarUsuario, dashboard, perguntas padrão)
-  middlewares/  auth (requireAuth, requireRole) e tratamento de erros
-  utils/        validação, sessão, datas, AppError
+  config/       conexão com o MongoDB
+  controllers/  regras dos endpoints
+  middlewares/  autenticação, permissões e tratamento de erros
+  models/       modelos Mongoose
+  routes/       rotas da API
+  services/     lógica compartilhada
+  utils/        validações, sessão, datas e erros
 public/
-  index.html    dashboard servido pelo Express
-  anamnese.html formulário público da anamnese
-  css/          estilos do dashboard
-  js/           autenticação, cliente HTTP e módulos por funcionalidade
+  index.html    interface principal, servida pelo Express
+  anamnese.html formulário público de anamnese
+  css/          estilos
+  js/           autenticação, cliente HTTP e módulos da interface
+docs/
+  requests.http exemplos de chamadas à API
 ```
 
-O dashboard fica disponível em `http://localhost:3000/`; o formulário público da anamnese é servido em
-`/anamnese.html?acc=<estudio.slug>`. O front usa a sessão HTTP do backend e as rotas `/api`, sem seeds
-ou cópias locais de dados. A preferência visual de tema é a única informação persistida no `localStorage`.
+O frontend é servido pelo Express no mesmo host da API. Acesse-o por `http://localhost:3000`; não abra os arquivos HTML diretamente nem inicie um servidor separado para `public/`. A sessão de login é mantida por cookie HTTP; a preferência de tema é salva no `localStorage`.
 
-## Contratos de dados
-1. **Multi-estúdio:** todo model novo precisa do campo `estudio: ObjectId ref 'Estudio'` e TODA query filtra por `req.estudioId`.
-   (A exclusão de conta apaga automaticamente tudo que tem o campo `estudio`.)
-2. **Auth:** use `requireAuth` (e `requireRole('dono')` quando for só do dono). Ele preenche `req.usuario`, `req.estudio`, `req.estudioId`.
-3. **Equipe (Pessoa 2) — já integrado:** o login do artista é criado com `criarUsuario(...)` de `services/usuarioService.js`; a tabela `usuarios` continua da Pessoa 1. A Equipe guarda só função e split no model `Membro`. O `id` do membro na API é o `id` do `Usuario` (o mesmo usado em `profissional` na agenda).
-4. **Lead (CRM):** usa o model `Lead` com `estudio`, `cliente`, `descricao`, `estilo`, `preco` (Number), `status` 0|1|2 (**2 = fechado**), `artista` (ref `Usuario`, usado nos repasses) e timestamps. A data de fechamento é o `updatedAt`.
-5. **Erros:** `throw new AppError(status, mensagem)` dentro de `asyncHandler`. Resposta: `{ erro, detalhes }`.
-6. **Formato:** dinheiro = Number; datas = ISO (`AAAA-MM-DD`); ids = string `id`.
+## Regras gerais dos dados
 
-## Rotas (prefixo /api) — todas exigem sessão, exceto as marcadas
-| Método | Rota | Obs |
-|---|---|---|
-| POST | /auth/register | público · cria estúdio + dono e já loga |
-| POST | /auth/login | público |
-| POST | /auth/logout | |
-| GET | /auth/me | dados do logado + estúdio/plano |
-| GET/POST | /clientes | `?busca=&page=&limit=` |
-| GET/PUT/DELETE | /clientes/:id | |
-| GET/POST | /agendamentos | `?de=&ate=&status=&profissionalId=&clienteId=` |
-| GET/PUT/DELETE | /agendamentos/:id | 409 em conflito de horário |
-| PATCH | /agendamentos/:id/status | agendado, confirmado, concluido, cancelado |
-| GET/POST | /anamnese/perguntas | escrita só dono |
-| PUT/DELETE | /anamnese/perguntas/:id | só dono |
-| PATCH | /anamnese/perguntas/:id/ativa | só dono · inverte ativa |
-| GET | /anamnese/fichas, /anamnese/fichas/:id | inclui `alertas` |
-| GET | /public/anamnese/:slug | **público** · perguntas ativas + artistas |
-| POST | /public/anamnese/:slug/fichas | **público** · envia a ficha |
-| GET | /config | |
-| PUT | /config/estudio · /config/perfil · /config/senha | estudio: só dono |
-| DELETE | /config/conta | só dono · exige `{ senha }` |
-| GET | /dashboard | só dono |
-| GET/POST | /leads | sessão · artista lista/cria apenas os próprios leads |
-| PUT/DELETE | /leads/:id | sessão · artista só altera/remove os próprios leads |
-| PATCH | /leads/:id/status | `{ status: 0\|1\|2 }` · altera etapa; 2 = fechado |
-| GET/POST | /estoque | `?baixo=true` lista só estoque baixo · POST `{ item, categoria?, quantidade, estoqueMinimo? }` |
-| PUT/DELETE | /estoque/:id | |
-| PATCH | /estoque/:id/movimentar | `{ tipo: 'entrada'\|'saida', quantidade }` · 400 se faltar saldo |
-| GET/POST | /despesas | **só dono** · `?mes=AAAA-MM` · POST `{ descricao, valor, categoria?, data? }` |
-| PUT/DELETE | /despesas/:id | só dono |
-| GET | /equipe | **só dono** · `{ limite, total, membros[] }` |
-| POST | /equipe | só dono · `{ nome, funcao?, split, email, senha }` · cria login + perfil · 403 se estourar o plano |
-| PUT/DELETE | /equipe/:id | só dono · DELETE desativa o login (não apaga histórico); dono não pode ser removido |
-| GET | /financeiro/resumo | só dono · `?mes=AAAA-MM` → `{ entradas, saidas, lucro }` |
-| GET | /financeiro/transacoes · /extrato.csv | só dono · `?mes=AAAA-MM` |
-| GET | /financeiro/repasses | só dono · por artista: `devido`, `pago`, `pendente` |
-| POST | /financeiro/repasses/:artistaId/pagar | só dono · registra repasse + despesa "Repasse" |
-
-## Frontend
-- O Express serve os arquivos de `public/` no mesmo host da API; rode o app via `npm run dev`, não por `file://`.
-- O cliente HTTP centralizado em `public/js/api.js` inclui `credentials: 'include'` e interpreta erros `{ erro, detalhes }`.
-- O front usa os contratos de `clientes`, `agendamentos`, `anamnese`, `dashboard`, `config`, `leads`, `estoque`, `despesas`, `equipe` e `financeiro`.
-- O financeiro consome os totais e repasses calculados pela API. Dinheiro trafega como número; datas trafegam em ISO (`AAAA-MM-DD`).
-- Dados de financeiro, equipe e configurações de estúdio ficam visíveis apenas para `perfil === 'dono'`.
+- Os dados de negócio pertencem a um estúdio e as consultas são isoladas por estúdio.
+- Os endpoints protegidos usam a sessão do usuário autenticado; operações administrativas exigem o perfil de dono.
+- Dinheiro é representado como número e datas trafegam no formato ISO `AAAA-MM-DD`.
+- Erros da API seguem o formato `{ "erro": "...", "detalhes": ... }`.
