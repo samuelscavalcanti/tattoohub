@@ -477,6 +477,15 @@
         }
         .sys-login-link:hover { color: #DC143C; }
 
+        .pwa-install-btn {
+            position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 100000;
+            padding: 0.8rem 1rem; border: 2px solid #DC143C;
+            background: #1A1A1A; color: #F0EAD6; cursor: pointer;
+            font-family: 'Roboto Mono', monospace; font-size: 0.8rem;
+            box-shadow: 4px 4px 0 #DC143C;
+        }
+        .pwa-install-btn[hidden] { display: none; }
+
         .sys-login-footer {
             text-align: center; margin-top: 2rem;
             font-size: 0.7rem; color: rgba(26,26,26,0.4);

@@ -11,6 +11,7 @@ Sistema web para gestão de estúdios de tatuagem. Reúne clientes, agenda, fich
 - Controle de estoque, despesas, equipe e repasses.
 - Resumo financeiro e exportação de extrato CSV.
 - Separação dos dados por estúdio e permissões para dono e artista.
+- Instalação como PWA em navegadores compatíveis; a interface se adapta a telas menores.
 
 ## Requisitos
 
@@ -39,7 +40,11 @@ Abra o `.env` e confira as configurações antes de iniciar:
 | `COOKIE_SAMESITE` | Política do cookie de sessão; use `lax` no acesso local. `none` exige HTTPS. |
 | `TZ` | Fuso horário do servidor (padrão: `America/Sao_Paulo`). |
 
-Não compartilhe nem envie seu `.env` para o repositório. O `.env.example` contém somente valores de referência. Se usar MongoDB local, inicie o serviço do MongoDB antes do servidor.
+Não compartilhe nem envie seu `.env` para o repositório. O `.env.example` contém somente valores de referência. Se usar MongoDB local no Windows, inicie o serviço antes do servidor (em PowerShell como administrador, se necessário):
+
+```powershell
+Start-Service MongoDB
+```
 
 Inicie a aplicação:
 
@@ -60,8 +65,8 @@ Uma resposta como `{ "ok": true }` indica que o servidor está ativo. A API só 
 ## Como acessar o sistema
 
 1. Com o servidor e o MongoDB em execução, abra `http://localhost:3000` no navegador.
-2. No primeiro acesso, crie o estúdio e o usuário dono pela rota pública `POST /api/auth/register`. A tela do sistema é de login; ela não possui formulário de cadastro.
-3. Faça login na interface usando o e-mail e a senha criados.
+2. No primeiro acesso, clique em **Não tem conta? Cadastre-se**, preencha nome, estúdio, e-mail e senha para criar o estúdio e o usuário dono.
+3. Faça login na interface usando o e-mail e a senha criados. Se já existe um usuário, entre diretamente.
 
 Para criar o primeiro usuário pelo PowerShell, substitua os dados de exemplo e execute:
 
@@ -87,6 +92,18 @@ Para criar usuários artistas, entre como dono e use a área de equipe. A visibi
 ### Anamnese pública
 
 O formulário público pode ser acessado em `http://localhost:3000/anamnese.html?acc=<slug-do-estudio>`. O `slug` está disponível nos dados do estúdio retornados por `GET /api/auth/me`. O formulário não exige login.
+
+### Instalar como PWA
+
+Em `http://localhost:3000`, use **Instalar aplicativo** quando o navegador oferecer essa opção. Em celulares cujo navegador não exiba o botão, use o menu do navegador e escolha **Adicionar à tela inicial**. A instalação exige HTTPS em um site publicado; `localhost` é considerado seguro para testes locais. O shell e os arquivos estáticos locais podem abrir offline depois de carregados (fontes e bibliotecas externas podem não estar disponíveis), mas login, API e dados precisam do servidor e do MongoDB disponíveis. Respostas da API e dados de usuário não são armazenados pelo service worker.
+
+## Entrega e acesso do professor
+
+O código-fonte completo está no repositório GitHub público: [github.com/samuelscavalcanti/tattoohub](https://github.com/samuelscavalcanti/tattoohub). O link foi conferido e o repositório contém `src/` (backend e modelos do banco MongoDB), `public/` (frontend), `docs/`, `package.json` e `README.md`. O banco usa MongoDB com schemas Mongoose; não há um dump de dados reais incluído.
+
+Conforme a orientação do trabalho, **somente o líder do grupo deve enviar o projeto**. O líder pode enviar ao professor o link acima para acesso ao código. Para executar a aplicação, o professor deve clonar o repositório, instalar Node.js 18 ou superior e MongoDB, seguir a configuração deste README e iniciar a aplicação localmente. A página do repositório no GitHub é para entrega/consulta do código, não é uma hospedagem da aplicação: o sistema depende do backend Node.js e de uma conexão MongoDB e não funciona apenas pelo GitHub Pages.
+
+Antes do envio, confirme que o repositório está público ou que o professor foi convidado com permissão de leitura, e que as últimas alterações foram enviadas (push) para `main`. Nunca inclua `.env`, senhas, chaves ou dados reais de clientes; o `.env.example` contém apenas valores de referência.
 
 ## API
 
@@ -124,7 +141,10 @@ public/
   index.html    interface principal, servida pelo Express
   anamnese.html formulário público de anamnese
   css/          estilos
-  js/           autenticação, cliente HTTP e módulos da interface
+  js/           autenticação, cliente HTTP, PWA e módulos da interface
+  manifest.webmanifest manifesto e ícones da PWA
+  icons/        ícones instaláveis da aplicação
+  sw.js         cache do shell estático, sem cache da API
 docs/
   requests.http exemplos de chamadas à API
 ```
